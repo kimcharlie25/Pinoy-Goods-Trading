@@ -17,14 +17,11 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, totalPrice, onBack }) =>
   const [step, setStep] = useState<'details' | 'payment'>('details');
   const [customerName, setCustomerName] = useState('');
   const [contactNumber, setContactNumber] = useState('');
-  const [serviceType, setServiceType] = useState<ServiceType>('dine-in');
+  const [serviceType, setServiceType] = useState<ServiceType>('pickup');
   const [address, setAddress] = useState('');
   const [landmark, setLandmark] = useState('');
   const [pickupTime, setPickupTime] = useState('5-10');
   const [customTime, setCustomTime] = useState('');
-  // Dine-in specific state
-  const [partySize, setPartySize] = useState(1);
-  const [dineInTime, setDineInTime] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('gcash');
   const [referenceNumber] = useState('');
   const [notes, setNotes] = useState('');
@@ -124,8 +121,6 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, totalPrice, onBack }) =>
         serviceType,
         address: serviceType === 'delivery' ? address : undefined,
         pickupTime: serviceType === 'pickup' ? (pickupTime === 'custom' ? customTime : `${pickupTime} minutes`) : undefined,
-        partySize: serviceType === 'dine-in' ? partySize : undefined,
-        dineInTime: serviceType === 'dine-in' ? dineInTime : undefined,
         paymentMethod,
         referenceNumber,
         notes: mergedNotes,
@@ -153,17 +148,6 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, totalPrice, onBack }) =>
       ? (pickupTime === 'custom' ? customTime : `${pickupTime} minutes`)
       : '';
     
-    const dineInInfo = serviceType === 'dine-in' 
-      ? `👥 Party Size: ${partySize} person${partySize !== 1 ? 's' : ''}\n🕐 Preferred Time: ${new Date(dineInTime).toLocaleString('en-US', { 
-          weekday: 'long', 
-          year: 'numeric', 
-          month: 'long', 
-          day: 'numeric', 
-          hour: '2-digit', 
-          minute: '2-digit' 
-        })}`
-      : '';
-    
     const orderDetails = `
 🛒 Pinoy Goods Trading ORDER
 📋 Order Code: #${orderId.slice(-8).toUpperCase()}
@@ -173,7 +157,6 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, totalPrice, onBack }) =>
 📍 Service: ${serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}
 ${serviceType === 'delivery' ? `🏠 Address: ${address}${landmark ? `\n🗺️ Landmark: ${landmark}` : ''}` : ''}
 ${serviceType === 'pickup' ? `⏰ Pickup Time: ${timeInfo}` : ''}
-${serviceType === 'dine-in' ? dineInInfo : ''}
 
 
 📋 ORDER DETAILS:
@@ -221,33 +204,32 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
 
   const isDetailsValid = customerName && contactNumber && 
     (serviceType !== 'delivery' || address) && 
-    (serviceType !== 'pickup' || (pickupTime !== 'custom' || customTime)) &&
-    (serviceType !== 'dine-in' || (partySize > 0 && dineInTime));
+    (serviceType !== 'pickup' || (pickupTime !== 'custom' || customTime));
 
   if (step === 'details') {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 bg-white min-h-screen">
         <div className="flex items-center mb-8">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200"
+            className="flex items-center space-x-2 text-gray-600 hover:text-brand-500 transition-colors duration-200 font-medium"
           >
             <ArrowLeft className="h-5 w-5" />
             <span>Back to Cart</span>
           </button>
-          <h1 className="text-3xl font-noto font-semibold text-black ml-8">Order Details</h1>
+          <h1 className="text-3xl font-bold text-gray-900 ml-8">Order Details</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Order Summary */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-2xl font-noto font-medium text-black mb-6">Order Summary</h2>
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
             
             <div className="space-y-4 mb-6">
               {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center justify-between py-2 border-b border-red-100">
+                <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-200">
                   <div>
-                    <h4 className="font-medium text-black">{item.name}</h4>
+                    <h4 className="font-semibold text-gray-900">{item.name}</h4>
                     {item.selectedVariation && (
                       <p className="text-sm text-gray-600">Size: {item.selectedVariation.name}</p>
                     )}
@@ -258,44 +240,44 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
                     )}
                     <p className="text-sm text-gray-600">₱{item.totalPrice} x {item.quantity}</p>
                   </div>
-                  <span className="font-semibold text-black">₱{item.totalPrice * item.quantity}</span>
+                  <span className="font-bold text-gray-900">₱{item.totalPrice * item.quantity}</span>
                 </div>
               ))}
             </div>
             
-            <div className="border-t border-red-200 pt-4">
-              <div className="flex items-center justify-between text-2xl font-noto font-semibold text-black">
+            <div className="border-t-2 border-gray-300 pt-4">
+              <div className="flex items-center justify-between text-2xl font-bold text-gray-900">
                 <span>Total:</span>
-                <span>₱{totalPrice}</span>
+                <span className="text-brand-500">₱{totalPrice}</span>
               </div>
             </div>
           </div>
 
           {/* Customer Details Form */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-2xl font-noto font-medium text-black mb-6">Customer Information</h2>
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Information</h2>
             
             <form className="space-y-6">
               {/* Customer Information */}
               <div>
-                <label className="block text-sm font-medium text-black mb-2">Full Name *</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Full Name *</label>
                 <input
                   type="text"
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
                   placeholder="Enter your full name"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-black mb-2">Contact Number *</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Contact Number *</label>
                 <input
                   type="tel"
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
-                  className="w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
                   placeholder="09XX XXX XXXX"
                   required
                 />
@@ -303,10 +285,9 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
 
               {/* Service Type */}
               <div>
-                <label className="block text-sm font-medium text-black mb-3">Service Type *</label>
-                <div className="grid grid-cols-3 gap-3">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">Service Type *</label>
+                <div className="grid grid-cols-2 gap-3">
                   {[
-                    { value: 'dine-in', label: 'Dine In', icon: '🪑' },
                     { value: 'pickup', label: 'Pickup', icon: '🚶' },
                     { value: 'delivery', label: 'Delivery', icon: '🛵' }
                   ].map((option) => (
@@ -314,62 +295,23 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
                       key={option.value}
                       type="button"
                       onClick={() => setServiceType(option.value as ServiceType)}
-                      className={`p-4 rounded-lg border-2 transition-all duration-200 ${
+                      className={`p-4 rounded-lg border-2 transition-all duration-200 font-semibold ${
                         serviceType === option.value
-                          ? 'border-red-600 bg-red-600 text-white'
-                          : 'border-red-300 bg-white text-gray-700 hover:border-red-400'
+                          ? 'border-brand-500 bg-brand-500 text-white shadow-brand'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-brand-400 hover:bg-gray-50'
                       }`}
                     >
                       <div className="text-2xl mb-1">{option.icon}</div>
-                      <div className="text-sm font-medium">{option.label}</div>
+                      <div className="text-sm">{option.label}</div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Dine-in Details */}
-              {serviceType === 'dine-in' && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-2">Party Size *</label>
-                    <div className="flex items-center space-x-4">
-                      <button
-                        type="button"
-                        onClick={() => setPartySize(Math.max(1, partySize - 1))}
-                        className="w-10 h-10 rounded-lg border-2 border-red-300 flex items-center justify-center text-red-600 hover:border-red-400 hover:bg-red-50 transition-all duration-200"
-                      >
-                        -
-                      </button>
-                      <span className="text-2xl font-semibold text-black min-w-[3rem] text-center">{partySize}</span>
-                      <button
-                        type="button"
-                        onClick={() => setPartySize(Math.min(20, partySize + 1))}
-                        className="w-10 h-10 rounded-lg border-2 border-red-300 flex items-center justify-center text-red-600 hover:border-red-400 hover:bg-red-50 transition-all duration-200"
-                      >
-                        +
-                      </button>
-                      <span className="text-sm text-gray-600 ml-2">person{partySize !== 1 ? 's' : ''}</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-2">Preferred Time *</label>
-                    <input
-                      type="datetime-local"
-                      value={dineInTime}
-                      onChange={(e) => setDineInTime(e.target.value)}
-                      className="w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
-                      required
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Please select your preferred dining time</p>
-                  </div>
-                </>
-              )}
-
               {/* Pickup Time Selection */}
               {serviceType === 'pickup' && (
                 <div>
-                  <label className="block text-sm font-medium text-black mb-3">Pickup Time *</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-3">Pickup Time *</label>
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-3">
                       {[
@@ -382,10 +324,10 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
                           key={option.value}
                           type="button"
                           onClick={() => setPickupTime(option.value)}
-                          className={`p-3 rounded-lg border-2 transition-all duration-200 text-sm ${
+                          className={`p-3 rounded-lg border-2 transition-all duration-200 text-sm font-semibold ${
                             pickupTime === option.value
-                              ? 'border-red-600 bg-red-600 text-white'
-                              : 'border-red-300 bg-white text-gray-700 hover:border-red-400'
+                              ? 'border-brand-500 bg-brand-500 text-white shadow-brand'
+                              : 'border-gray-300 bg-white text-gray-700 hover:border-brand-400 hover:bg-gray-50'
                           }`}
                         >
                           <Clock className="h-4 w-4 mx-auto mb-1" />
@@ -399,7 +341,7 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
                         type="text"
                         value={customTime}
                         onChange={(e) => setCustomTime(e.target.value)}
-                        className="w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
                         placeholder="e.g., 45 minutes, 1 hour, 2:30 PM"
                         required
                       />
@@ -412,11 +354,11 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
               {serviceType === 'delivery' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-black mb-2">Delivery Address *</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Delivery Address *</label>
                     <textarea
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
-                      className="w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
                       placeholder="Enter your complete delivery address"
                       rows={3}
                       required
@@ -424,12 +366,12 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-black mb-2">Landmark</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Landmark (Optional)</label>
                     <input
                       type="text"
                       value={landmark}
                       onChange={(e) => setLandmark(e.target.value)}
-                      className="w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
                       placeholder="e.g., Near McDonald's, Beside 7-Eleven, In front of school"
                     />
                   </div>
@@ -438,11 +380,11 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
 
               {/* Special Notes */}
               <div>
-                <label className="block text-sm font-medium text-black mb-2">Special Instructions</label>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Special Instructions (Optional)</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-4 py-3 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all duration-200"
                   placeholder="Any special requests or notes..."
                   rows={3}
                 />
@@ -451,9 +393,9 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
               <button
                 onClick={handleProceedToPayment}
                 disabled={!isDetailsValid}
-                className={`w-full py-4 rounded-xl font-medium text-lg transition-all duration-200 transform ${
+                className={`w-full py-4 rounded-lg font-bold text-lg transition-all duration-200 transform ${
                   isDetailsValid
-                    ? 'bg-red-600 text-white hover:bg-red-700 hover:scale-[1.02]'
+                    ? 'bg-brand-500 text-white hover:bg-brand-600 hover:scale-[1.02] shadow-brand-lg'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
@@ -468,16 +410,16 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
 
   // Payment Step
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 bg-white min-h-screen">
       <div className="flex items-center mb-8">
         <button
           onClick={() => setStep('details')}
-          className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200"
+          className="flex items-center space-x-2 text-gray-600 hover:text-brand-500 transition-colors duration-200 font-medium"
         >
           <ArrowLeft className="h-5 w-5" />
           <span>Back to Details</span>
         </button>
-        <h1 className="text-3xl font-noto font-semibold text-black ml-8">Payment</h1>
+        <h1 className="text-3xl font-bold text-gray-900 ml-8">Payment</h1>
       </div>
 
       {uiNotice && (
@@ -488,8 +430,8 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Payment Method Selection */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-2xl font-noto font-medium text-black mb-6">Choose Payment Method</h2>
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Choose Payment Method</h2>
           
           <div className="grid grid-cols-1 gap-4 mb-6">
             {paymentMethods.map((method) => (
@@ -497,56 +439,56 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
                 key={method.id}
                 type="button"
                 onClick={() => setPaymentMethod(method.id as PaymentMethod)}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 flex items-center space-x-3 ${
+                className={`p-4 rounded-lg border-2 transition-all duration-200 flex items-center space-x-3 font-semibold ${
                   paymentMethod === method.id
-                    ? 'border-red-600 bg-red-600 text-white'
-                    : 'border-red-300 bg-white text-gray-700 hover:border-red-400'
+                    ? 'border-brand-500 bg-brand-500 text-white shadow-brand'
+                    : 'border-gray-300 bg-white text-gray-700 hover:border-brand-400 hover:bg-gray-50'
                 }`}
               >
                 <span className="text-2xl">💳</span>
-                <span className="font-medium">{method.name}</span>
+                <span>{method.name}</span>
               </button>
             ))}
           </div>
 
           {/* Payment Details with QR Code */}
           {selectedPaymentMethod && (
-            <div className="bg-red-50 rounded-lg p-6 mb-6">
-              <h3 className="font-medium text-black mb-4">Payment Details</h3>
+            <div className="bg-brand-50 rounded-lg p-6 mb-6 border border-brand-200">
+              <h3 className="font-bold text-gray-900 mb-4">Payment Details</h3>
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="flex-1">
                   <p className="text-sm text-gray-600 mb-1">{selectedPaymentMethod.name}</p>
-                  <p className="font-mono text-black font-medium">{selectedPaymentMethod.account_number}</p>
+                  <p className="font-mono text-gray-900 font-semibold text-lg">{selectedPaymentMethod.account_number}</p>
                   <p className="text-sm text-gray-600 mb-3">Account Name: {selectedPaymentMethod.account_name}</p>
-                  <p className="text-xl font-semibold text-black">Amount: ₱{totalPrice}</p>
+                  <p className="text-xl font-bold text-brand-600">Amount: ₱{totalPrice}</p>
                 </div>
                 <div className="flex-shrink-0">
                   <img 
                     src={selectedPaymentMethod.qr_code_url} 
                     alt={`${selectedPaymentMethod.name} QR Code`}
-                    className="w-32 h-32 rounded-lg border-2 border-red-300 shadow-sm"
+                    className="w-32 h-32 rounded-lg border-2 border-brand-400 shadow-md"
                     onError={(e) => {
                       e.currentTarget.src = 'https://images.pexels.com/photos/8867482/pexels-photo-8867482.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop';
                     }}
                   />
-                  <p className="text-xs text-gray-500 text-center mt-2">Scan to pay</p>
+                  <p className="text-xs text-gray-500 text-center mt-2 font-medium">Scan to pay</p>
                 </div>
               </div>
             </div>
           )}
 
           {/* Receipt Upload */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-medium text-black mb-3">📸 Upload Payment Receipt</h4>
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h4 className="font-bold text-gray-900 mb-3">📸 Upload Payment Receipt</h4>
             
             {!receiptPreview ? (
               <div>
                 <label
                   htmlFor="receipt-upload"
-                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer bg-white hover:bg-blue-50 transition-colors"
+                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Upload className="h-8 w-8 text-blue-500 mb-2" />
+                    <Upload className="h-8 w-8 text-brand-500 mb-2" />
                     <p className="text-sm text-gray-600">
                       <span className="font-semibold">Click to select receipt</span> or drag and drop
                     </p>
@@ -563,7 +505,7 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="relative rounded-lg overflow-hidden border-2 border-blue-300">
+                <div className="relative rounded-lg overflow-hidden border-2 border-brand-300">
                   <img
                     src={receiptPreview}
                     alt="Receipt preview"
@@ -604,12 +546,12 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
         </div>
 
         {/* Order Summary */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-2xl font-noto font-medium text-black mb-6">Final Order Summary</h2>
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Final Order Summary</h2>
           
           <div className="space-y-4 mb-6">
-            <div className="bg-red-50 rounded-lg p-4">
-              <h4 className="font-medium text-black mb-2">Customer Details</h4>
+            <div className="bg-brand-50 rounded-lg p-4 border border-brand-200">
+              <h4 className="font-bold text-gray-900 mb-2">Customer Details</h4>
               <p className="text-sm text-gray-600">Name: {customerName}</p>
               <p className="text-sm text-gray-600">Contact: {contactNumber}</p>
               <p className="text-sm text-gray-600">Service: {serviceType.charAt(0).toUpperCase() + serviceType.slice(1)}</p>
@@ -624,29 +566,12 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
                   Pickup Time: {pickupTime === 'custom' ? customTime : `${pickupTime} minutes`}
                 </p>
               )}
-              {serviceType === 'dine-in' && (
-                <>
-                  <p className="text-sm text-gray-600">
-                    Party Size: {partySize} person{partySize !== 1 ? 's' : ''}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Preferred Time: {dineInTime ? new Date(dineInTime).toLocaleString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric', 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    }) : 'Not selected'}
-                  </p>
-                </>
-              )}
             </div>
 
             {cartItems.map((item) => (
-              <div key={item.id} className="flex items-center justify-between py-2 border-b border-red-100">
+              <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-200">
                 <div>
-                  <h4 className="font-medium text-black">{item.name}</h4>
+                  <h4 className="font-semibold text-gray-900">{item.name}</h4>
                   {item.selectedVariation && (
                     <p className="text-sm text-gray-600">Size: {item.selectedVariation.name}</p>
                   )}
@@ -661,22 +586,22 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
                   )}
                   <p className="text-sm text-gray-600">₱{item.totalPrice} x {item.quantity}</p>
                 </div>
-                <span className="font-semibold text-black">₱{item.totalPrice * item.quantity}</span>
+                <span className="font-bold text-gray-900">₱{item.totalPrice * item.quantity}</span>
               </div>
             ))}
           </div>
           
-          <div className="border-t border-red-200 pt-4 mb-6">
-            <div className="flex items-center justify-between text-2xl font-noto font-semibold text-black">
+          <div className="border-t-2 border-gray-300 pt-4 mb-6">
+            <div className="flex items-center justify-between text-2xl font-bold text-gray-900">
               <span>Total:</span>
-              <span>₱{totalPrice}</span>
+              <span className="text-brand-500">₱{totalPrice}</span>
             </div>
           </div>
 
           <button
             onClick={handlePlaceOrder}
             disabled={creating || uploadingReceipt}
-            className={`w-full py-4 rounded-xl font-medium text-lg transition-all duration-200 transform ${creating || uploadingReceipt ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-red-600 text-white hover:bg-red-700 hover:scale-[1.02]'}`}
+            className={`w-full py-4 rounded-lg font-bold text-lg transition-all duration-200 transform ${creating || uploadingReceipt ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand-500 text-white hover:bg-brand-600 hover:scale-[1.02] shadow-brand-lg'}`}
           >
             {uploadingReceipt ? (
               <span className="flex items-center justify-center space-x-2">
