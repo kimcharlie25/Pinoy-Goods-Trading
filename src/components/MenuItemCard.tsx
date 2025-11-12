@@ -106,9 +106,9 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
 
   return (
     <>
-      <div className={`bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group animate-scale-in border border-gray-100 ${!item.available ? 'opacity-60' : ''}`}>
+      <div className={`bg-white rounded-xl shadow-md hover:shadow-brand-lg transition-all duration-300 overflow-hidden group animate-scale-in border border-gray-200 ${!item.available ? 'opacity-60' : ''}`}>
         {/* Image Container with Badges */}
-        <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="relative h-52 bg-gradient-to-br from-gray-100 to-gray-50">
           {item.image ? (
             <img
               src={item.image}
@@ -129,26 +129,26 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
             {item.isOnDiscount && item.discountPrice && (
-              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg animate-pulse">
-                SALE
+              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg animate-pulse">
+                🔥 SALE
               </div>
             )}
             {item.popular && (
-              <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+              <div className="bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg">
                 ⭐ POPULAR
               </div>
             )}
           </div>
           
           {!item.available && (
-            <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+            <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-lg">
               UNAVAILABLE
             </div>
           )}
           
           {/* Discount Percentage Badge */}
           {showDiscount && discountedPrice !== undefined && (
-            <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm text-red-600 text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+            <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm text-red-600 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg">
               {Math.round(((basePrice - discountedPrice) / basePrice) * 100)}% OFF
             </div>
           )}
@@ -204,31 +204,31 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
               {!item.available ? (
                 <button
                   disabled
-                  className="bg-gray-200 text-gray-500 px-4 py-2.5 rounded-xl cursor-not-allowed font-medium text-sm"
+                  className="bg-gray-200 text-gray-500 px-5 py-2.5 rounded-lg cursor-not-allowed font-semibold text-sm"
                 >
                   Unavailable
                 </button>
               ) : quantity === 0 ? (
                 <button
                   onClick={handleAddToCart}
-                  className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2.5 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 font-medium text-sm shadow-lg hover:shadow-xl"
+                  className="bg-brand-500 text-white px-6 py-2.5 rounded-lg hover:bg-brand-600 transition-all duration-200 transform hover:scale-105 font-semibold text-sm shadow-brand hover:shadow-brand-lg"
                 >
-                  {item.variations?.length || item.addOns?.length ? 'Customize' : 'Add to Cart'}
+                  {item.variations?.length || item.addOns?.length ? 'Customize' : 'Add'}
                 </button>
               ) : (
-                <div className="flex items-center space-x-2 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl p-1 border border-yellow-200">
+                <div className="flex items-center space-x-2 bg-brand-50 rounded-lg p-1 border-2 border-brand-500">
                   <button
                     onClick={handleDecrement}
-                    className="p-2 hover:bg-yellow-200 rounded-lg transition-colors duration-200 hover:scale-110"
+                    className="p-2 hover:bg-brand-100 rounded-lg transition-colors duration-200 hover:scale-110"
                   >
-                    <Minus className="h-4 w-4 text-gray-700" />
+                    <Minus className="h-4 w-4 text-brand-600" />
                   </button>
-                  <span className="font-bold text-gray-900 min-w-[28px] text-center text-sm">{quantity}</span>
+                  <span className="font-bold text-brand-600 min-w-[28px] text-center text-sm">{quantity}</span>
                   <button
                     onClick={handleIncrement}
-                    className="p-2 hover:bg-yellow-200 rounded-lg transition-colors duration-200 hover:scale-110"
+                    className="p-2 hover:bg-brand-100 rounded-lg transition-colors duration-200 hover:scale-110"
                   >
-                    <Plus className="h-4 w-4 text-gray-700" />
+                    <Plus className="h-4 w-4 text-brand-600" />
                   </button>
                 </div>
               )}
@@ -315,9 +315,9 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
                     {item.variations.map((variation) => (
                       <label
                         key={variation.id}
-                        className={`flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                        className={`flex items-center justify-between p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                           selectedVariation?.id === variation.id
-                            ? 'border-red-500 bg-red-50'
+                            ? 'border-brand-500 bg-brand-50 shadow-brand'
                             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
@@ -327,7 +327,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
                             name="variation"
                             checked={selectedVariation?.id === variation.id}
                             onChange={() => setSelectedVariation(variation)}
-                            className="text-red-600 focus:ring-red-500"
+                            className="text-brand-600 focus:ring-brand-500"
                           />
                           <span className="font-medium text-gray-900">{variation.name}</span>
                         </div>
@@ -364,18 +364,18 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
                             
                             <div className="flex items-center space-x-2">
                               {selectedAddOns.find(a => a.id === addOn.id) ? (
-                                <div className="flex items-center space-x-2 bg-red-100 rounded-xl p-1 border border-red-200">
+                                <div className="flex items-center space-x-2 bg-brand-100 rounded-lg p-1 border-2 border-brand-500">
                                   <button
                                     type="button"
                                     onClick={() => {
                                       const current = selectedAddOns.find(a => a.id === addOn.id);
                                       updateAddOnQuantity(addOn, (current?.quantity || 1) - 1);
                                     }}
-                                    className="p-1.5 hover:bg-red-200 rounded-lg transition-colors duration-200"
+                                    className="p-1.5 hover:bg-brand-200 rounded-lg transition-colors duration-200"
                                   >
-                                    <Minus className="h-3 w-3 text-red-600" />
+                                    <Minus className="h-3 w-3 text-brand-600" />
                                   </button>
-                                  <span className="font-semibold text-gray-900 min-w-[24px] text-center text-sm">
+                                  <span className="font-semibold text-brand-600 min-w-[24px] text-center text-sm">
                                     {selectedAddOns.find(a => a.id === addOn.id)?.quantity || 0}
                                   </span>
                                   <button
@@ -384,16 +384,16 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
                                       const current = selectedAddOns.find(a => a.id === addOn.id);
                                       updateAddOnQuantity(addOn, (current?.quantity || 0) + 1);
                                     }}
-                                    className="p-1.5 hover:bg-red-200 rounded-lg transition-colors duration-200"
+                                    className="p-1.5 hover:bg-brand-200 rounded-lg transition-colors duration-200"
                                   >
-                                    <Plus className="h-3 w-3 text-red-600" />
+                                    <Plus className="h-3 w-3 text-brand-600" />
                                   </button>
                                 </div>
                               ) : (
                                 <button
                                   type="button"
                                   onClick={() => updateAddOnQuantity(addOn, 1)}
-                                  className="flex items-center space-x-1 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 text-sm font-medium shadow-lg"
+                                  className="flex items-center space-x-1 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-all duration-200 text-sm font-semibold shadow-brand"
                                 >
                                   <Plus className="h-3 w-3" />
                                   <span>Add</span>
@@ -412,13 +412,13 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
               <div className="border-t border-gray-200 pt-4 mb-6">
                 <div className="flex items-center justify-between text-2xl font-bold text-gray-900">
                   <span>Total:</span>
-                  <span className="text-red-600">₱{calculatePrice().toFixed(2)}</span>
+                  <span className="text-brand-500">₱{calculatePrice().toFixed(2)}</span>
                 </div>
               </div>
 
               <button
                 onClick={handleCustomizedAddToCart}
-                className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 font-semibold flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="w-full bg-brand-500 text-white py-4 rounded-lg hover:bg-brand-600 transition-all duration-200 font-bold flex items-center justify-center space-x-2 shadow-brand-lg hover:shadow-brand transform hover:scale-105"
               >
                 <ShoppingCart className="h-5 w-5" />
                 <span>Add to Cart - ₱{calculatePrice().toFixed(2)}</span>

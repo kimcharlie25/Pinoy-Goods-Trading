@@ -165,7 +165,7 @@ const Checkout: React.FC<CheckoutProps> = ({ cartItems, totalPrice, onBack }) =>
       : '';
     
     const orderDetails = `
-🛒 ClickEats ORDER
+🛒 Pinoy Goods Trading ORDER
 📋 Order Code: #${orderId.slice(-8).toUpperCase()}
 
 👤 Customer: ${customerName}
@@ -201,12 +201,12 @@ ${uploadedReceiptUrl ? `📸 Payment Receipt: ${uploadedReceiptUrl}` : '📸 Pay
 
 ${notes ? `📝 Notes: ${notes}` : ''}
 
-Please confirm this order to proceed. Thank you for choosing ClickEats! 🥟
+Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading! 
 
 📋 Order Code: #${orderId.slice(-8).toUpperCase()}
     `.trim();
 
-    const pageId = '61579693577478';
+    const pageId = '61583270075805';
     const encodedMessage = encodeURIComponent(orderDetails);
     const webLink = `https://m.me/${pageId}?text=${encodedMessage}`;
 
