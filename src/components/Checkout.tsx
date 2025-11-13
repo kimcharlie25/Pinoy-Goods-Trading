@@ -189,7 +189,7 @@ Please confirm this order to proceed. Thank you for choosing Pinoy Goods Trading
 📋 Order Code: #${orderId.slice(-8).toUpperCase()}
     `.trim();
 
-    const pageId = '61583270075805';
+    const pageId = 'pinoygoodstrading222';
     const encodedMessage = encodeURIComponent(orderDetails);
     const webLink = `https://m.me/${pageId}?text=${encodedMessage}`;
 
