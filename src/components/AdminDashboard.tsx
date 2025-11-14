@@ -213,7 +213,13 @@ const AdminDashboard: React.FC = () => {
 
   const updateVariation = (index: number, field: keyof Variation, value: string | number) => {
     const updatedVariations = [...(formData.variations || [])];
-    updatedVariations[index] = { ...updatedVariations[index], [field]: value };
+    // For price field, handle string values during editing
+    if (field === 'price') {
+      const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+      updatedVariations[index] = { ...updatedVariations[index], [field]: numValue };
+    } else {
+      updatedVariations[index] = { ...updatedVariations[index], [field]: value };
+    }
     setFormData({ ...formData, variations: updatedVariations });
   };
 
@@ -237,7 +243,13 @@ const AdminDashboard: React.FC = () => {
 
   const updateAddOn = (index: number, field: keyof AddOn, value: string | number) => {
     const updatedAddOns = [...(formData.addOns || [])];
-    updatedAddOns[index] = { ...updatedAddOns[index], [field]: value };
+    // For price field, handle string values during editing
+    if (field === 'price') {
+      const numValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+      updatedAddOns[index] = { ...updatedAddOns[index], [field]: numValue };
+    } else {
+      updatedAddOns[index] = { ...updatedAddOns[index], [field]: value };
+    }
     setFormData({ ...formData, addOns: updatedAddOns });
   };
 
@@ -521,10 +533,38 @@ const AdminDashboard: React.FC = () => {
                   />
                   <input
                     type="number"
-                    value={variation.price}
-                    onChange={(e) => updateVariation(index, 'price', Number(e.target.value))}
-                    className="w-24 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Price"
+                    step="0.01"
+                    min="0"
+                    value={variation.price === 0 ? '' : variation.price}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      // Parse the value - update state for both empty and valid numbers
+                      if (val === '') {
+                        // Set to 0 when empty to keep controlled component in sync
+                        updateVariation(index, 'price', 0);
+                      } else {
+                        const numValue = parseFloat(val);
+                        if (!isNaN(numValue) && numValue >= 0) {
+                          updateVariation(index, 'price', numValue);
+                        }
+                      }
+                    }}
+                    onBlur={(e) => {
+                      // Ensure valid number on blur - default to 0 if empty or invalid
+                      const val = e.target.value;
+                      if (val === '' || isNaN(parseFloat(val))) {
+                        updateVariation(index, 'price', 0);
+                      } else {
+                        const numValue = parseFloat(val);
+                        if (numValue >= 0) {
+                          updateVariation(index, 'price', numValue);
+                        } else {
+                          updateVariation(index, 'price', 0);
+                        }
+                      }
+                    }}
+                    className="w-32 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="0.00"
                   />
                   <button
                     onClick={() => removeVariation(index)}
@@ -569,10 +609,38 @@ const AdminDashboard: React.FC = () => {
                   </select>
                   <input
                     type="number"
-                    value={addOn.price}
-                    onChange={(e) => updateAddOn(index, 'price', Number(e.target.value))}
-                    className="w-24 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="Price"
+                    step="0.01"
+                    min="0"
+                    value={addOn.price === 0 ? '' : addOn.price}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      // Parse the value - update state for both empty and valid numbers
+                      if (val === '') {
+                        // Set to 0 when empty to keep controlled component in sync
+                        updateAddOn(index, 'price', 0);
+                      } else {
+                        const numValue = parseFloat(val);
+                        if (!isNaN(numValue) && numValue >= 0) {
+                          updateAddOn(index, 'price', numValue);
+                        }
+                      }
+                    }}
+                    onBlur={(e) => {
+                      // Ensure valid number on blur - default to 0 if empty or invalid
+                      const val = e.target.value;
+                      if (val === '' || isNaN(parseFloat(val))) {
+                        updateAddOn(index, 'price', 0);
+                      } else {
+                        const numValue = parseFloat(val);
+                        if (numValue >= 0) {
+                          updateAddOn(index, 'price', numValue);
+                        } else {
+                          updateAddOn(index, 'price', 0);
+                        }
+                      }
+                    }}
+                    className="w-32 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="0.00"
                   />
                   <button
                     onClick={() => removeAddOn(index)}

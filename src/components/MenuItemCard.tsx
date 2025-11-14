@@ -34,11 +34,8 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
     : (hasImplicitDiscount ? effectivePrice : undefined);
 
   const calculatePrice = () => {
-    // Use effective price (discounted or regular) as base
-    let price = effectivePrice;
-    if (selectedVariation) {
-      price = effectivePrice + selectedVariation.price;
-    }
+    // Use variation price as absolute price (not addition), or fallback to effective price
+    let price = selectedVariation ? selectedVariation.price : effectivePrice;
     selectedAddOns.forEach(addOn => {
       price += addOn.price * addOn.quantity;
     });
@@ -191,12 +188,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
                   ₱{basePrice.toFixed(2)}
                 </div>
               )}
-              
-              {item.variations && item.variations.length > 0 && (
-                <div className="text-xs text-gray-500 mt-1">
-                  Starting price
-                </div>
-              )}
             </div>
             
             {/* Action Buttons */}
@@ -332,7 +323,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
                           <span className="font-medium text-gray-900">{variation.name}</span>
                         </div>
                         <span className="text-gray-900 font-semibold">
-                          ₱{((item.effectivePrice || item.basePrice) + variation.price).toFixed(2)}
+                          ₱{variation.price.toFixed(2)}
                         </span>
                       </label>
                     ))}
