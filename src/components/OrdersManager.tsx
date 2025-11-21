@@ -144,6 +144,15 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
     }
   };
 
+  const escapeCSV = (value: string | number) => {
+    const str = String(value);
+    // If value contains comma, quote, or newline, wrap in quotes and escape quotes
+    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+  };
+
   const exportToCSV = () => {
     setExporting(true);
     try {
@@ -156,36 +165,79 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
         return;
       }
 
-      // CSV Headers - Exact order as specified
+      // CSV Headers - Include product details
       const headers = [
         'OrderID',
         'CustName',
         'ContactNum',
         'Email',
+        'ProductName',
+        'Quantity',
+        'UnitPrice',
+        'Subtotal',
         'TotalSpent',
         'OrderDateandTime',
         'ServiceType',
         'remarks'
       ];
 
-      // CSV Rows - Exact order as specified
-      const rows = completedOrders.map(order => {
-        return [
-          order.id.slice(-8).toUpperCase(),
-          order.customer_name,
-          order.contact_number,
-          'N/A', // Email field not in database
-          order.total.toFixed(2),
-          formatDateTimeForCSV(order.created_at),
-          formatServiceType(order.service_type),
-          order.notes || 'N/A'
-        ];
+      // CSV Rows - Create one row per order item
+      const rows: string[][] = [];
+      
+      completedOrders.forEach(order => {
+        // If order has items, create a row for each item
+        if (order.order_items && order.order_items.length > 0) {
+          order.order_items.forEach((item, index) => {
+            // Build product name with variations and add-ons
+            let productName = item.name;
+            if (item.variation) {
+              productName += ` (${item.variation.name})`;
+            }
+            if (item.add_ons && item.add_ons.length > 0) {
+              const addOnsText = item.add_ons.map((addon: any) => 
+                addon.quantity > 1 ? `${addon.name} x${addon.quantity}` : addon.name
+              ).join(', ');
+              productName += ` + ${addOnsText}`;
+            }
+
+            rows.push([
+              order.id.slice(-8).toUpperCase(),
+              order.customer_name,
+              order.contact_number,
+              'N/A', // Email field not in database
+              productName,
+              item.quantity.toString(),
+              item.unit_price.toFixed(2),
+              item.subtotal.toFixed(2),
+              order.total.toFixed(2),
+              formatDateTimeForCSV(order.created_at),
+              formatServiceType(order.service_type),
+              order.notes || 'N/A'
+            ]);
+          });
+        } else {
+          // Fallback if order has no items (shouldn't happen, but just in case)
+          rows.push([
+            order.id.slice(-8).toUpperCase(),
+            order.customer_name,
+            order.contact_number,
+            'N/A',
+            'N/A',
+            '0',
+            '0.00',
+            '0.00',
+            order.total.toFixed(2),
+            formatDateTimeForCSV(order.created_at),
+            formatServiceType(order.service_type),
+            order.notes || 'N/A'
+          ]);
+        }
       });
 
-      // Create CSV content
+      // Create CSV content with proper escaping
       const csvContent = [
         headers.join(','),
-        ...rows.map(row => row.join(','))
+        ...rows.map(row => row.map(cell => escapeCSV(cell)).join(','))
       ].join('\n');
 
       // Create blob and download
@@ -202,7 +254,8 @@ const OrdersManager: React.FC<OrdersManagerProps> = ({ onBack }) => {
       link.click();
       document.body.removeChild(link);
       
-      alert(`Successfully exported ${completedOrders.length} completed order(s)!`);
+      const totalItems = rows.length;
+      alert(`Successfully exported ${completedOrders.length} completed order(s) with ${totalItems} item(s)!`);
     } catch (error) {
       console.error('Export error:', error);
       alert('Failed to export orders. Please try again.');
